@@ -5,6 +5,7 @@ import base64
 import re
 from datetime import datetime
 from front_end import render_kpi_banner
+import os
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Martins Store | Sales & Inventory Copilot",
@@ -13,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-FASTAPI_URL = "http://127.0.0.1:8000"
+FASTAPI_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 API_ROUTES = {
     "upload": "/upload data",  # POST (multipart/form-data)
