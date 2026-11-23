@@ -1,0 +1,98 @@
+{
+    "file_name": "joined_df.csv",
+    "status": "success",
+    "summary": {
+        "current_inventory": {
+            "product_name": {
+                "0": "ergonomics chair",
+                "1": "fan",
+                "2": "keyboard",
+                "3": "laptops",
+                "4": "mouse"
+            },
+            "product_id": {
+                "0": 3,
+                "1": 5,
+                "2": 2,
+                "3": 4,
+                "4": 1
+            },
+            "opening_stock": {
+                "0": 1937,
+                "1": 1388,
+                "2": 1655,
+                "3": 1406,
+                "4": 1245
+            },
+            "restocked_units": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 10
+            },
+            "closing_stock": {
+                "0": 1932,
+                "1": 1382,
+                "2": 1650,
+                "3": 1398,
+                "4": 1252
+            },
+            "quantity_sold": {
+                "0": 5,
+                "1": 6,
+                "2": 5,
+                "3": 8,
+                "4": 3
+            }
+        },
+        "product_by_stock": {
+            "product_name": {
+                "0": "ergonomics chair",
+                "1": "keyboard",
+                "2": "laptops",
+                "3": "fan",
+                "4": "mouse"
+            },
+            "closing_stock": {
+                "0": 1932,
+                "1": 1650,
+                "2": 1398,
+                "3": 1382,
+                "4": 1252
+            }
+        },
+        "total_restocked_units_by_product": {
+            "product_name": {
+                "0": "ergonomics chair",
+                "1": "keyboard",
+                "2": "fan",
+                "3": "laptops",
+                "4": "mouse"
+            },
+            "restocked_units": {
+                "0": 5130,
+                "1": 4860,
+                "2": 4780,
+                "3": 4770,
+                "4": 4680
+            }
+        },
+        "inventory_sold_by_product": {
+            "product_name": {
+                "0": "fan",
+                "1": "keyboard",
+                "2": "laptops",
+                "3": "mouse",
+                "4": "ergonomics chair"
+            },
+            "inventory_sold": {
+                "0": 256826.1,
+                "1": 255141.9,
+                "2": 254028.96000000002,
+                "3": 199410.72,
+                "4": 172766.22
+            }
+        }
+    }
+}

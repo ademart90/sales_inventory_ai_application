@@ -1,0 +1,24 @@
+# Secrets & Environment
+.env
+.venv/
+venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs & Temporary Outputs
+*.log
+charts/*.png
+uploaded_files/*
+!uploaded_files/.gitkeep
+notebooks/*
+
+# Local Databases (uncomment if you don't want sample data on GitHub)
+# *.db
+
+# IDE & OS
+.vscode/
+.DS_Store
+Thumbs.db

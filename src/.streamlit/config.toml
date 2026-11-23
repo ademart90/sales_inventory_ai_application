@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#D97706"              # Warm Amber accent (matches your MS badge)
+backgroundColor = "#F8FAFC"           # Crisp cool-slate main canvas
+secondaryBackgroundColor = "#FFFFFF"  # Elevated white sidebar & input surfaces
+textColor = "#0F172A"                 # Deep slate ink for sharp readability
+font = "sans serif"
