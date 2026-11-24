@@ -100,7 +100,7 @@ if "selected_prompt" not in st.session_state:
 def check_backend_health() -> bool:
     """Ping the FastAPI server to show live status in the sidebar."""
     try:
-        res = requests.get(f"{FASTAPI_URL}/docs", timeout=1.5)
+        res = requests.get(f"{FASTAPI_URL}/docs", timeout=60)
         return res.status_code == 200
     except Exception:
         return False
