@@ -1,8 +1,7 @@
 import os
-import json
-import streamlit as st
-from datetime import datetime
 import requests
+import streamlit as st
+
 FASTAPI_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").strip().strip("'\"").rstrip("/")
 
 @st.cache_data(ttl=60)  # Cache for 60 seconds so page clicks stay fast
@@ -12,26 +11,22 @@ def fetch_sales_summary():
     return res.json()
 
 def render_kpi_banner():
-    """Reads generated sales_summary.json and displays 4 live store KPI cards."""
-    sales_path = "./json_uploads/sales_summary.json"
-    if not os.path.exists(sales_path):
-        return
-
+    """Fetches live sales summary from FastAPI and displays 4 store KPI cards."""
     try:
-        with open(sales_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        summary = data.get('summary', {})
+        data = fetch_sales_summary()
+        # Handle both {"summary": {...}} and direct {...} responses
+        summary = data.get("summary", data)
+        
         curr = summary.get("last_recorded_sales", {})
         w7 = summary.get("last_7_days", {})
         m30 = summary.get("last_30_days", {})
 
-        curr_rev = sum(p.get('total_revenue', 0) for p in curr.get('products', []))
-        curr_prof = sum(p.get('profit', 0) for p in curr.get('products', []))
-        w7_rev = sum(p.get('total_revenue', 0) for p in w7.get('products', []))
-        w7_prof = sum(p.get('profit', 0) for p in w7.get('products', []))
-        m30_rev = sum(p.get('total_revenue', 0) for p in m30.get('products', []))
-        m30_prof = sum(p.get('profit', 0) for p in m30.get('products', []))
-
+        curr_rev = sum(p.get("total_revenue", 0) for p in curr.get("products", []))
+        curr_prof = sum(p.get("profit", 0) for p in curr.get("products", []))
+        w7_rev = sum(p.get("total_revenue", 0) for p in w7.get("products", []))
+        w7_prof = sum(p.get("profit", 0) for p in w7.get("products", []))
+        m30_rev = sum(p.get("total_revenue", 0) for p in m30.get("products", []))
+        m30_prof = sum(p.get("profit", 0) for p in m30.get("products", []))
 
         # Identify highest-revenue product over the last 30 days
         products_30d = m30.get("products", [])
@@ -66,6 +61,5 @@ def render_kpi_banner():
             delta=top_sku_rev,
         )
         st.divider()
-    except Exception:
-        # Silently skip banner if JSON is still being written
-        pass
+    except Exception as e:
+        st.warning(f"Could not load live KPI summary: {e}")
