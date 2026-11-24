@@ -2,6 +2,15 @@ import os
 import json
 import streamlit as st
 from datetime import datetime
+import requests
+FASTAPI_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").strip().strip("'\"").rstrip("/")
+
+@st.cache_data(ttl=60)  # Cache for 60 seconds so page clicks stay fast
+def fetch_sales_summary():
+    res = requests.get(f"{FASTAPI_URL}/sales_summary", timeout=60)
+    res.raise_for_status()
+    return res.json()
+
 def render_kpi_banner():
     """Reads generated sales_summary.json and displays 4 live store KPI cards."""
     sales_path = "./json_uploads/sales_summary.json"
