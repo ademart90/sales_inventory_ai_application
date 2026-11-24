@@ -1,20 +1,19 @@
 import os
-import requests
+import json
 import streamlit as st
 
-FASTAPI_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").strip().strip("'\"").rstrip("/")
-
-@st.cache_data(ttl=60)  # Cache for 60 seconds so page clicks stay fast
-def fetch_sales_summary():
-    res = requests.get(f"{FASTAPI_URL}/sales_summary", timeout=60)
-    res.raise_for_status()
-    return res.json()
-
 def render_kpi_banner():
-    """Fetches live sales summary from FastAPI and displays 4 store KPI cards."""
+    """Reads generated sales_summary.json and displays 4 live store KPI cards."""
+    sales_path = os.path.join("json_uploads", "sales_summary.json")
+    
+    if not os.path.exists(sales_path):
+        st.warning(f"KPI summary file not found at `{sales_path}`. Make sure `json_uploads/` is pushed to GitHub.")
+        return
+
     try:
-        data = fetch_sales_summary()
-        # Handle both {"summary": {...}} and direct {...} responses
+        with open(sales_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            
         summary = data.get("summary", data)
         
         curr = summary.get("last_recorded_sales", {})
@@ -62,4 +61,4 @@ def render_kpi_banner():
         )
         st.divider()
     except Exception as e:
-        st.warning(f"Could not load live KPI summary: {e}")
+        st.warning(f"Could not load KPI summary from JSON: {e}")
