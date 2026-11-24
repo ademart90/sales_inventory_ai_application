@@ -11,12 +11,7 @@ __pycache__/
 # Logs & Temporary Outputs
 *.log
 charts/*.png
-uploaded_files/*
-!uploaded_files/.gitkeep
-notebooks/*
-
-# Local Databases (uncomment if you don't want sample data on GitHub)
-# *.db
+notebooks/
 
 # IDE & OS
 .vscode/
