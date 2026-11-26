@@ -12,7 +12,7 @@ st.set_page_config(
     page_title="Martins Store | Sales & Inventory Copilot",
     page_icon="📦",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 FASTAPI_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
@@ -105,6 +105,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible {
     padding: 0;
     color: #FFFFFF;
 }
+.hero .brand { display: flex; align-items: center; gap: 1.1rem; z-index: 3; }
+.hero .brand img { background: #FFFFFF; border-radius: 16px; padding: 6px; flex-shrink: 0; }
 .hero p { margin: 0; color: #B9C7D4; font-size: 1.02rem; max-width: 52ch; line-height: 1.5; }
 .hero .meta { display: flex; gap: .6rem; flex-wrap: wrap; z-index: 3; }
 .pill {
@@ -132,26 +134,33 @@ button:focus-visible, textarea:focus-visible, input:focus-visible {
     100% { box-shadow: 0 0 0 0 rgba(61,220,151,0); }
 }
 
-/* ---------- Sidebar ---------- */
-section[data-testid="stSidebar"] {
-    background: #FFFFFF;
-    border-right: 1px solid var(--line);
-}
-section[data-testid="stSidebar"] h1 { font-size: 1.5rem; }
-.side-card {
+/* ---------- Single page: no sidebar ---------- */
+section[data-testid="stSidebar"],
+div[data-testid="stSidebarCollapsedControl"],
+button[data-testid="stExpandSidebarButton"] { display: none !important; }
+
+/* ---------- Toolbar chips & offline notice ---------- */
+.chips { display: flex; gap: .6rem; flex-wrap: wrap; }
+.chip {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .4rem .85rem;
     border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #FFFFFF;
+    font-size: .88rem;
+    color: var(--ink);
+}
+.chip b { color: var(--ink-soft); font-weight: 500; }
+.notice {
+    border: 1px solid #F1C6C1;
+    border-left: 4px solid var(--danger);
+    background: #FFF5F4;
     border-radius: 12px;
-    padding: .85rem 1rem;
-    background: var(--paper);
-    margin-bottom: .8rem;
-    font-size: .92rem;
+    padding: .9rem 1.1rem;
+    margin-bottom: 1rem;
     line-height: 1.5;
 }
-.side-card .label { color: var(--ink-soft); font-size: .8rem; margin-bottom: .15rem; }
-.side-card .value { font-weight: 600; color: var(--ink); }
-.status-ok  { border-left: 4px solid #1FA971; }
-.status-bad { border-left: 4px solid var(--danger); }
-.status-bad code { font-size: .78rem; }
+.notice code { font-size: .85rem; }
 
 /* ---------- Buttons (general) ---------- */
 div.stButton > button {
@@ -170,7 +179,7 @@ div.stButton > button:hover {
 div.stButton > button:active { transform: translateY(0); }
 
 /* ---------- Starter prompt tiles ---------- */
-div[data-testid="stHorizontalBlock"] div.stButton > button {
+.st-key-starters div.stButton > button {
     width: 100%;
     background: #FFFFFF;
     border: 1px solid var(--line);
@@ -183,22 +192,22 @@ div[data-testid="stHorizontalBlock"] div.stButton > button {
     text-align: left;
     box-shadow: 0 1px 2px rgba(18,38,58,.05);
 }
-div[data-testid="stHorizontalBlock"] div.stButton > button p,
-div[data-testid="stHorizontalBlock"] div.stButton > button div[data-testid="stMarkdownContainer"] {
+.st-key-starters div.stButton > button p,
+.st-key-starters div.stButton > button div[data-testid="stMarkdownContainer"] {
     text-align: left !important;
     width: 100%;
     font-weight: 400;
     color: var(--ink-soft);
     line-height: 1.45;
 }
-div[data-testid="stHorizontalBlock"] div.stButton > button strong {
+.st-key-starters div.stButton > button strong {
     display: block;
     font-family: 'Bricolage Grotesque', sans-serif;
     font-size: 1.08rem;
     color: var(--ink);
     margin-bottom: .25rem;
 }
-div[data-testid="stHorizontalBlock"] div.stButton > button:hover {
+.st-key-starters div.stButton > button:hover {
     border-color: var(--line);
     border-top-color: var(--tag);
     background: var(--tag-tint);
@@ -302,7 +311,7 @@ if "selected_prompt" not in st.session_state:
 
 # --- HELPER FUNCTIONS ---
 def check_backend_health() -> bool:
-    """Ping the FastAPI server to show live status in the sidebar."""
+    """Ping the FastAPI server to show live status in the header."""
     try:
         res = requests.get(f"{FASTAPI_URL}/docs", timeout=60)
         return res.status_code == 200
@@ -352,57 +361,8 @@ def stream_ai_report(query: str, chart_list: list):
                 chart_list.append(base64.b64decode(b64_str.strip()))
 
 
-# --- SIDEBAR ---
+# --- BACKEND STATUS ---
 is_online = check_backend_health()
-
-with st.sidebar:
-    st.title("Martins Store", width=200)
-    st.image("https://img.icons8.com/plasticine/100/4D4D4D/storekeeper.png", width=120)
-    st.divider()
-
-    st.subheader("System Status")
-    if is_online:
-        st.markdown(
-            """
-            <div class="side-card status-ok">
-                <div class="label">Backend</div>
-                <div class="value"><span class="dot on"></span>&nbsp; Connected (port 8000)</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            """
-            <div class="side-card status-bad">
-                <div class="label">Backend</div>
-                <div class="value"><span class="dot off"></span>&nbsp; Offline</div>
-                <div style="margin-top:.4rem;">Start your server with:<br><code>uvicorn main:app --reload</code></div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    st.markdown(
-        """
-        <div class="side-card">
-            <div class="label">Model</div>
-            <div class="value">Gemini AI Engine</div>
-        </div>
-        <div class="side-card">
-            <div class="label">Mode</div>
-            <div class="value">Real-time streaming</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.divider()
-
-    if st.button("Clear conversation", width="stretch"):
-        st.session_state.messages = []
-        st.session_state.selected_prompt = None
-        st.rerun()
-
 
 # --- MAIN HEADER (HTML hero) ---
 hour = datetime.now().hour
@@ -416,9 +376,12 @@ status_html = (
 st.markdown(
     f"""
     <div class="hero">
-        <div>
-            <h1>{greeting}, Martins</h1>
-            <p>Real-time sales and inventory intelligence for your store.</p>
+        <div class="brand">
+            <img src="https://img.icons8.com/plasticine/100/4D4D4D/storekeeper.png" alt="" width="64" height="64">
+            <div>
+                <h1>{greeting}, Martins</h1>
+                <p>Real-time sales and inventory intelligence for your store.</p>
+            </div>
         </div>
         <div class="meta">
             {status_html}
@@ -430,40 +393,73 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+if not is_online:
+    st.markdown(
+        """
+        <div class="notice">
+            <b>Backend offline.</b> Start your server with <code>uvicorn main:app --reload</code>,
+            then reload this page. KPI cards will use the saved summary file until it is back.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 # --- KPI BANNER ---
 render_kpi_banner()
+
+# --- TOOLBAR (model info + clear conversation) ---
+with st.container(key="toolbar"):
+    tb_left, tb_right = st.columns([4, 1], vertical_alignment="center")
+    with tb_left:
+        st.markdown(
+            '<div class="chips">'
+            '<span class="chip"><b>Model</b> Gemini AI Engine</span>'
+            '<span class="chip"><b>Mode</b> Real-time streaming</span>'
+            "</div>",
+            unsafe_allow_html=True,
+        )
+    with tb_right:
+        if st.button(
+            "Clear conversation",
+            width="stretch",
+            disabled=not st.session_state.messages,
+        ):
+            st.session_state.messages = []
+            st.session_state.selected_prompt = None
+            st.rerun()
 
 # --- QUICK-PROMPT STARTER CARDS (shown when chat is empty) ---
 if not st.session_state.messages:
     st.markdown("#### Try asking")
-    col1, col2, col3 = st.columns(3)
+    with st.container(key="starters"):
+        col1, col2, col3 = st.columns(3)
 
-    with col1:
-        if st.button(
-            "📊 **Revenue & Profit Chart**\n\nPlot a bar chart of revenue across all 5 store items",
-            width="stretch",
-        ):
-            st.session_state.selected_prompt = (
-                "Plot a bar chart comparing total revenue across all products in Store and summarize profit margins."
-            )
+        with col1:
+            if st.button(
+                "📊 **Revenue & Profit Chart**\n\nPlot a bar chart of revenue across all 5 store items",
+                width="stretch",
+            ):
+                st.session_state.selected_prompt = (
+                    "Plot a bar chart comparing total revenue across all products in Store and summarize profit margins."
+                )
 
-    with col2:
-        if st.button(
-            "📦 **Restock & Inventory Check**\n\nWhich items have the lowest closing stock right now?",
-            width="stretch",
-        ):
-            st.session_state.selected_prompt = (
-                "Check current inventory closing stock across all products and tell me which items need restocking first."
-            )
+        with col2:
+            if st.button(
+                "📦 **Restock & Inventory Check**\n\nWhich items have the lowest closing stock right now?",
+                width="stretch",
+            ):
+                st.session_state.selected_prompt = (
+                    "Check current inventory closing stock across all products and tell me which items need restocking first."
+                )
 
-    with col3:
-        if st.button(
-            "🔎 **Sales Anomaly Audit**\n\nExplain the unusual sales spikes flagged by Z-score",
-            width="stretch",
-        ):
-            st.session_state.selected_prompt = (
-                "Analyze the sales anomalies detected by Z-score and highlight any unusual patterns."
-            )
+        with col3:
+            if st.button(
+                "🔎 **Sales Anomaly Audit**\n\nExplain the unusual sales spikes flagged by Z-score",
+                width="stretch",
+            ):
+                st.session_state.selected_prompt = (
+                    "Analyze the sales anomalies detected by Z-score and highlight any unusual patterns."
+                )
 
     st.divider()
 
