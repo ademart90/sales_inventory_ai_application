@@ -55,11 +55,12 @@ h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', 'DM Sans', sans-serif; colo
 .block-container { padding-top: 1.6rem; padding-bottom: 6rem; max-width: 1180px; }
 header[data-testid="stHeader"] { background: transparent; }
 
-/* Keyboard focus stays visible */
-button:focus-visible, textarea:focus-visible, input:focus-visible {
+/* Keyboard focus stays visible on buttons only (no box around the typing area) */
+button:focus-visible {
     outline: 3px solid var(--tag) !important;
     outline-offset: 2px;
 }
+
 
 /* ---------- Hero ---------- */
 .hero {

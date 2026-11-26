@@ -9,7 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from src.schemas.reporting_schema import QueryRequest, prompt_text, ChatTurn
 from src.pipelines.sales_pipeline import load_clean_sales
 from src.pipelines.inventory_pipeline import load_clean_inventory
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from src.pipelines.chart_pipeline import plot_chart
 from langchain_core.messages import HumanMessage, ToolMessage, AIMessage
 router = APIRouter()
@@ -23,6 +23,22 @@ sales_summary_path = './json_uploads/sales_summary.json'
 inventory_summary_path = './json_uploads/inventory_summary.json'
 
 
+
+@router.get('/latest_summary')
+def latest_summary():
+    """Return the latest saved sales summary, same file /ai_report reads."""
+    if not os.path.exists(sales_summary_path):
+        raise HTTPException(
+            status_code=404,
+            detail='No sales summary has been generated yet. Upload data first.',
+        )
+    try:
+        with open(sales_summary_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f'sales_summary.json is not valid JSON: {e}')
+
+    return JSONResponse(content=data, headers={'Cache-Control': 'no-store'})
 
 @router.post('/ai_report')
 async def report(payload: QueryRequest):

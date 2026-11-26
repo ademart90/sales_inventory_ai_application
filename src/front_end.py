@@ -6,17 +6,20 @@ import requests
 import streamlit as st
 
 FASTAPI_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
-SALES_SUMMARY_ROUTE = "/sales_summary"
+SALES_SUMMARY_ROUTE = os.getenv('report_router', '/latest_summary')
 SALES_JSON_PATH = os.path.join("json_uploads", "sales_summary.json")
 
 CACHE_SECONDS = 30      # how long a fetched result is reused
 AUTO_REFRESH = "60s"    # how often the KPI cards re-check for new data
+REQUEST_TIMEOUT = 30
 
 
 @st.cache_data(ttl=CACHE_SECONDS, show_spinner=False)
 def _fetch_live_summary() -> dict:
     """GET the latest summary from the FastAPI backend."""
-    res = requests.get(f"{FASTAPI_URL}{SALES_SUMMARY_ROUTE}", timeout=10)
+    res = requests.get(f"{FASTAPI_URL}{SALES_SUMMARY_ROUTE}", 
+                       headers={'Cache-control':'no-cache'},
+                       timeout=REQUEST_TIMEOUT)
     res.raise_for_status()
     return res.json()
 
